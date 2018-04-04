@@ -14,18 +14,22 @@ namespace XamarinRecyclerTest
 {
     class PostAdapter : RecyclerView.Adapter
     {
-        private List<Post> posts;
+        private PostList postList;
 
-        public PostAdapter(List<Post> posts)
+        public PostAdapter(PostList postList)
         {
-            this.posts = posts;
+            this.postList = postList;
         }
 
-        public override int ItemCount { get => posts.Count; }
+        public override int ItemCount { get => postList.posts.Count; }
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
             PostViewHolder viewHolder = holder as PostViewHolder;
+            viewHolder.SetUserIdView(postList.posts[position].userId);
+            viewHolder.SetPostIdView(postList.posts[position].id);
+            viewHolder.SetPostTitleView(postList.posts[position].title);
+            viewHolder.SetPostBodyView(postList.posts[position].body);
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)

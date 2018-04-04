@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using System.Net;
 using System;
 using System.IO;
+using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace XamarinRecyclerTest
 {
@@ -15,29 +17,36 @@ namespace XamarinRecyclerTest
     {
 
         private RecyclerView recyclerView;
+        private Button button;
+
         private RecyclerView.LayoutManager mlayoutManager;
+        private PostAdapter postAdapter;
+
+        JsonValue json;
+
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-
-            // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.Main);
 
-            JsonValue jsonValue;
+            recyclerView = FindViewById<RecyclerView>(Resource.Id.posts_view);
             mlayoutManager = new LinearLayoutManager(this);
+            recyclerView.SetLayoutManager(mlayoutManager);
+            button = FindViewById<Button>(Resource.Id.fetch_json);
 
-            Button button = FindViewById<Button>(Resource.Id.fetch_json);
+
 
             button.Click += async (sender, e) => {
 
-                // Get the latitude and longitude entered by the user and create a query.
                 string url = "http://jsonplaceholder.typicode.com/posts";
+                
+                json = await FetchPostsAsync(url);
+                PostList postList;
+                postList = new PostList(JsonConvert.DeserializeObject<List<Post>>(json.ToString()));
+                postAdapter = new PostAdapter(postList);
+                recyclerView.SetAdapter(postAdapter);
 
-                // Fetch the weather information asynchronously, 
-                // parse the results, then update the screen:
-                JsonValue json = await FetchPostsAsync(url);
-                // ParseAndDisplay (json);
             };
 
 
@@ -54,8 +63,6 @@ namespace XamarinRecyclerTest
                 using (Stream stream = response.GetResponseStream())
                 {
                     JsonValue jsonValue = await Task.Run(() => JsonValue.Load(stream));
-                    Console.Out.WriteLine(jsonValue.ToString());
-
                     return jsonValue;
                 }
             }
